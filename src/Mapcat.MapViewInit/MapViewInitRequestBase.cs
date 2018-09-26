@@ -8,6 +8,10 @@ namespace Mapcat.MapViewInit
     {
         public string Protocol { get; set; } = "https";
 
-        public Dictionary<string, string> Layers { get; set; }
+        public Dictionary<string, string> Layers { get; set; } = new Dictionary<string, string> {
+            { Constants.BaseLayers.Base,string.Empty },
+            { Constants.BaseLayers.Landcover, string.Empty },
+            { Constants.BaseLayers.Ocean,string.Empty },
+            { Constants.BaseLayers.Relief,string.Empty }};
     }
 }

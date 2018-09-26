@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace Mapcat.MapViewInit
@@ -34,13 +35,16 @@ namespace Mapcat.MapViewInit
             _client = client;
         }
 
-        public Task<string> InitRasterView(MapViewInitRequestRaster request)
+        public async Task<MapViewInitResponse> InitRasterView(MapViewInitRequestRaster request)
         {
-            return InitView(request);
+            var result = await InitView(request);
+            return JsonConvert.DeserializeObject<MapViewInitResponse>(result);
         }
-        public Task<string> InitVectorView(MapViewInitRequestVector request)
+
+        public async Task<MapViewInitResponse> InitVectorView(MapViewInitRequestVector request)
         {
-            return InitView(request);
+            var result = await InitView(request);
+            return new MapViewInitResponse { StyleSheet = result };
         }
 
         private async Task<string> InitView(MapViewInitRequestBase request)
@@ -52,11 +56,11 @@ namespace Mapcat.MapViewInit
             }
             var dataAsString = JsonConvert.SerializeObject(request, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
             var content = new StringContent(dataAsString);
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             var response = await _client.PostAsync(requestPath, content).ConfigureAwait(false);
             response.EnsureSuccessStatusCode();
-            var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-            return result;
         }
 
     }
